@@ -1,4 +1,4 @@
-function[map] = nodalmaps(N,element,values,dof,order)
+function[map] = nodalmaps(N,element,values,dof,order,type)
 %%
 %==============================================================================
 % Copyright (c) 2016 Université de Lorraine & Luleå tekniska universitet
@@ -99,28 +99,23 @@ switch order
                     for n=1:dof
                         i(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) = dof*(element(1,k)-1) + l;
                         j(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) = dof*(element(1,m)-1) + n;
-                        s(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) = values(dof*(k-1)+l,dof*(m-1)+n);
+                        s(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) =
                     end
                 end
             end
-        end      
+        end
+        map = sparse(i,j,s,dof*N,dof*N);
     case 2
-        i = zeros(dof*nnodes*dof*nnodes,1);                                % Sparse matrix construction: initialize vector of row indeces
-        j = zeros(dof*nnodes*dof*nnodes,1);                                % Sparse matrix construction: initialize vector of column indeces
-        s = zeros(dof*nnodes*dof*nnodes,1);                                % Sparse matrix construction: initialize vector of values
-        for k = 1:nnodes                                                   % Loop through global matrix rows
-            for l=1:dof
-                for m = 1:nnodes                                           % Loop through global matrix columns
-                    for n=1:dof
-                        i(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) = N*(l-1) + element(1,k);
-                        j(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) = N*(n-1) + element(1,m);
-                        s(dof*nnodes*dof*(k-1)+dof*nnodes*(l-1)+dof*(m-1)+n) = values(dof*(k-1)+l,dof*(m-1)+n);
-                    end
-                end
+        i = zeros(dof*nnodes,1);
+        j = zeros(dof*nnodes,1);
+        s = zeros(dof*nnodes,1);
+        for k = 1:dof
+            for l=1:nnodes
+                i(nnodes*(k-1)+l) = N*(k-1) + element(1,l);
+                j(nnodes*(k-1)+l) = nnodes*(k-1) + l;
             end
-        end      
+        end
+        map = sparse(i,j,s,dof*N,dof*N);
 end
-
-map = sparse(i,j,s,dof*N,dof*N);
 
 end
